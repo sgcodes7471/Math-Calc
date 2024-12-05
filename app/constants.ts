@@ -18,8 +18,19 @@ export interface MathExpressionCase{
     result: number | string;
     assign?: boolean; 
 };
+
+export interface Chats{
+    text?:string;
+    prompt?:boolean; 
+}
   
 type VariableDictionary = Record<string, number>;
+
+export const chatInstructions = ():string=>`You are MathBot, an AI asistant for solving Mathematics related doubts. 
+      Firstly keep your responses short and to the point. Secondly, Only answers to prompts related to 
+      maths and science and not any other topic. If asked any doubt related to any other topic respond with 
+      "I am trained only to answer to scientific doubts". The only exception to this should be if the user greets you 
+      in any way`
 
 export const fnPrompt = (dictOfVars: VariableDictionary): string => `
   You have been given an image with some mathematical expressions, equations, or graphical problems, and you need to solve them.
