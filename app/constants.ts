@@ -23,7 +23,33 @@ export interface Chats{
     text?:string;
     prompt?:boolean; 
 }
-  
+
+import 'next-auth'
+import { DefaultSession } from 'next-auth'
+
+declare module 'next-auth'{
+    interface User {
+        _id?:string,
+        name?:string,
+        email?:string
+    }
+    interface Session{
+        user:{
+            _id?:string,
+            name?:string,
+            email?:string
+        }& DefaultSession['user']
+    }
+}
+
+declare module 'next-auth/jwt'{
+    interface JWT{
+        _id?:string,
+        name?:string,
+        email?:string
+    }
+}
+
 type VariableDictionary = Record<string, number>;
 
 export const chatInstructions = ():string=>`You are MathBot, an AI asistant for solving Mathematics related doubts. 

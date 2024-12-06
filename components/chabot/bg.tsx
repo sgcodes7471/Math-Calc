@@ -3,16 +3,36 @@
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import cross from "@/assets/cross.svg"
+import mic from '@/assets/mic.svg'
 import { Input } from "../ui/input";
 import send from '@/assets/send.svg'
 import Chat from "./chat";
 import axios from "axios";
 import { useChatContext } from "@/context/chatContext";
+import SpeechRecognition , {useSpeechRecognition } from 'react-speech-recognition'
+
 
 export default function BG({close}:{close:React.Dispatch<React.SetStateAction<boolean>>}){
     const [prompt , setPrompt] = useState<string>('');
     const {history  , setHistory} = useChatContext();
     const chatRef = useRef<HTMLDivElement|null>(null);
+    const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+
+    function handleSpeech(){
+        if(!browserSupportsSpeechRecognition){
+            console.log('Your browser does not support speech recognition');
+            return
+        }
+        if(listening){
+            console.log('stop');
+            SpeechRecognition.stopListening;
+            setPrompt(transcript);
+            resetTranscript();
+            return;
+        }
+        console.log('start');
+        SpeechRecognition.startListening;
+    }
 
     useEffect(()=>{
         if(chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
@@ -45,7 +65,7 @@ export default function BG({close}:{close:React.Dispatch<React.SetStateAction<bo
             const result = {text:response.data.result , prompt:false};
             setHistory([...history , chat , result]);
         }catch (error) {
-            console.log('some error in chatbot api call');
+            console.log(`some error in chatbot api call\n${error}`);
         }
     }
 
@@ -76,6 +96,7 @@ export default function BG({close}:{close:React.Dispatch<React.SetStateAction<bo
 
             <div className="w-[100%] px-2 py-4 flex" style={{background:'linear-gradient(to left , #5C5CFE , #E94986)',
             borderBottomLeftRadius:'1rem',borderBottomRightRadius:'1rem'}}>
+                <Image src={mic} alt="" width={30} height={30} onClick={handleSpeech}/>
                 <Input type="text" value={prompt} placeholder="Enter your Prompts" onChange={(e)=>setPrompt(e.target.value)}/>
                 <Image src={send} alt="" width={30} height={30} id="send-btn" className="cursor-pointer"
                 style={{transform:'rotateZ(-60deg)',marginLeft:'10px'}} onClick={apiCall}/>

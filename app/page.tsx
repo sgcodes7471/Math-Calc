@@ -9,6 +9,8 @@ import axios from "axios";
 import Draggable from "@/components/draggable";
 import bot from "@/assets/bot.svg"
 import BG from "@/components/chabot/bg";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 interface Response {
     expr:string;
@@ -30,6 +32,13 @@ export default function Home(){
     const [dictOfVars , setDictOfVars] = useState({});
     const [latexExpression , setLatexExpression] = useState<Array<string>>([]);
     const [botOpen , setBotOpen] = useState<boolean>(false);
+    const session = useSession();
+    const router = useRouter();
+
+    async function handleLogout() {
+        router.replace('/login');
+        await signOut({redirect:false});
+    }
 
     useEffect(()=>{
         if(reset){
@@ -81,8 +90,6 @@ export default function Home(){
                     }
                 }
             }
-            const centerX = (minX + maxX) / 2;
-            const centerY = (minY + maxY) / 2;
             answers.forEach((data:Response) => {
                 setTimeout(() => {
                     setResult({
@@ -201,10 +208,21 @@ export default function Home(){
                     )       
                 })}
 
-            <Button variant='default' color="black" style={{background:'linear-gradient(to left , #5C5CFE , #E94986)'}}
-            className="z-20 border-1  rounded px-[12px] py-[5px] font-bold">LogOut</Button> 
-            <Button variant='default' color="black" style={{background:'linear-gradient(to left , #5C5CFE , #E94986)'}}
-            className="z-20 border-1  rounded px-[12px] py-[5px] font-bold">Saved</Button> 
+            {
+                session.status === 'authenticated' &&
+                <Button variant='default' color="black" style={{background:'linear-gradient(to left , #5C5CFE , #E94986)'}}
+                className="z-20 border-1  rounded px-[12px] py-[5px] font-bold" onClick={handleLogout}>LogOut</Button>
+            }
+            {
+                session.status === 'unauthenticated' &&
+                <Button variant='default' color="black" style={{background:'linear-gradient(to left , #5C5CFE , #E94986)'}}
+                className="z-20 border-1  rounded px-[12px] py-[5px] font-bold" onClick={()=>router.replace('/login')}>LogIn</Button>
+            }
+            {
+                session.status === 'authenticated' &&
+                <Button variant='default' color="black" style={{background:'linear-gradient(to left , #5C5CFE , #E94986)'}}
+                className="z-20 border-1  rounded px-[12px] py-[5px] font-bold">Saved</Button> 
+            }
           
         </div>
         <canvas id="canvas" onMouseDown={startDrawing} onMouseOut={stopDrawing} onMouseUp={stopDrawing} onMouseMove={draw}

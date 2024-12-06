@@ -28,7 +28,7 @@ export async function POST(req:NextRequest){
         console.log(answers);
         return NextResponse.json({answers:answers})
     } catch (error) {
-        console.log('Post Error');
+        console.log(`Post Error\n${error}`);
         return NextResponse.json({error:true})
     }
 }
